@@ -1,47 +1,133 @@
 package com.example.proyecto_android_studio_isw28
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.proyecto_android_studio_isw28.ui.theme.Proyecto_android_studio_isw28Theme
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.example.proyecto_android_studio_isw28.R
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var tvExpression: TextView
+    private lateinit var tvResult: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Proyecto_android_studio_isw28Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+        setContentView(R.layout.activity_main)
+
+        tvExpression = findViewById(R.id.tvExpression)
+        tvResult = findViewById(R.id.tvResult)
+
+        val buttons = listOf(
+            R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
+            R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9,
+            R.id.btnDot, R.id.btnAdd, R.id.btnSub, R.id.btnMul, R.id.btnDiv,
+            R.id.btnOpen, R.id.btnClose
+        )
+
+        for (id in buttons) {
+            findViewById<Button>(id).setOnClickListener {
+                val buttonText = (it as Button).text.toString()
+                appendOnExpression(buttonText)
+            }
+        }
+
+        findViewById<Button>(R.id.btnC).setOnClickListener {
+            tvExpression.text = ""
+            tvResult.text = ""
+        }
+
+        findViewById<Button>(R.id.btnDel).setOnClickListener {
+            val string = tvExpression.text.toString()
+            if (string.isNotEmpty()) {
+                tvExpression.text = string.substring(0, string.length - 1)
+            }
+        }
+
+        findViewById<Button>(R.id.btnEquals).setOnClickListener {
+            try {
+                val expression = tvExpression.text.toString()
+                val result = evaluate(expression)
+
+                val resultStr = if (result % 1 == 0.0) {
+                    result.toLong().toString()
+                } else {
+                    result.toString()
                 }
+
+                tvResult.text = resultStr
+            } catch (e: Exception) {
+                tvResult.text = "Error"
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun appendOnExpression(string: String) {
+        tvResult.text = ""
+        tvExpression.append(string)
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Proyecto_android_studio_isw28Theme {
-        Greeting("Android")
+    private fun evaluate(str: String): Double {
+        return object : Any() {
+            var pos = -1
+            var ch = 0
+
+            fun nextChar() {
+                ch = if (++pos < str.length) str[pos].toInt() else -1
+            }
+
+            fun eat(charToEat: Int): Boolean {
+                while (ch == ' '.toInt()) nextChar()
+                if (ch == charToEat) {
+                    nextChar()
+                    return true
+                }
+                return false
+            }
+
+            fun parse(): Double {
+                nextChar()
+                val x = parseExpression()
+                if (pos < str.length) throw RuntimeException("Unexpected: " + ch.toChar())
+                return x
+            }
+
+            fun parseExpression(): Double {
+                var x = parseTerm()
+                while (true) {
+                    if (eat('+'.toInt())) x += parseTerm() // Suma
+                    else if (eat('-'.toInt())) x -= parseTerm() // Resta
+                    else return x
+                }
+            }
+
+            fun parseTerm(): Double {
+                var x = parseFactor()
+                while (true) {
+                    if (eat('*'.toInt())) x *= parseFactor() // Multiplicación
+                    else if (eat('/'.toInt())) x /= parseFactor() // División
+                    else return x
+                }
+            }
+
+            fun parseFactor(): Double {
+                if (eat('+'.toInt())) return parseFactor()
+                if (eat('-'.toInt())) return -parseFactor()
+
+                var x: Double
+                val startPos = pos
+
+                if (eat('('.toInt())) {
+                    x = parseExpression()
+                    eat(')'.toInt())
+                } else if (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) {
+                    while (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) nextChar()
+                    x = str.substring(startPos, pos).toDouble()
+                } else {
+                    throw RuntimeException("Unexpected: " + ch.toChar())
+                }
+                return x
+            }
+        }.parse()
     }
 }
