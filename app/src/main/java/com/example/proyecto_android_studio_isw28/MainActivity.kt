@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.proyecto_android_studio_isw28.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         tvExpression = findViewById(R.id.tvExpression)
         tvResult = findViewById(R.id.tvResult)
 
+        // Botones normales
         val buttons = listOf(
             R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
             R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9,
@@ -29,6 +29,15 @@ class MainActivity : AppCompatActivity() {
             findViewById<Button>(id).setOnClickListener {
                 val buttonText = (it as Button).text.toString()
                 appendOnExpression(buttonText)
+            }
+        }
+
+        // Botones trigonométricos
+        val trigButtons = listOf(R.id.btnSin, R.id.btnCos, R.id.btnTan)
+        for (id in trigButtons) {
+            findViewById<Button>(id).setOnClickListener {
+                val buttonText = (it as Button).text.toString()
+                appendOnExpression("$buttonText(")
             }
         }
 
@@ -95,8 +104,8 @@ class MainActivity : AppCompatActivity() {
             fun parseExpression(): Double {
                 var x = parseTerm()
                 while (true) {
-                    if (eat('+'.toInt())) x += parseTerm() // Suma
-                    else if (eat('-'.toInt())) x -= parseTerm() // Resta
+                    if (eat('+'.toInt())) x += parseTerm()
+                    else if (eat('-'.toInt())) x -= parseTerm()
                     else return x
                 }
             }
@@ -104,8 +113,8 @@ class MainActivity : AppCompatActivity() {
             fun parseTerm(): Double {
                 var x = parseFactor()
                 while (true) {
-                    if (eat('*'.toInt())) x *= parseFactor() // Multiplicación
-                    else if (eat('/'.toInt())) x /= parseFactor() // División
+                    if (eat('*'.toInt())) x *= parseFactor()
+                    else if (eat('/'.toInt())) x /= parseFactor()
                     else return x
                 }
             }
@@ -123,6 +132,16 @@ class MainActivity : AppCompatActivity() {
                 } else if (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) {
                     while (ch >= '0'.toInt() && ch <= '9'.toInt() || ch == '.'.toInt()) nextChar()
                     x = str.substring(startPos, pos).toDouble()
+                } else if (ch >= 'a'.toInt() && ch <= 'z'.toInt()) { // Nuevo bloque para funciones trigonométricas
+                    while (ch >= 'a'.toInt() && ch <= 'z'.toInt()) nextChar()
+                    val func = str.substring(startPos, pos)
+                    x = parseFactor()
+                    x = when (func) {
+                        "sen", "sin" -> Math.sin(Math.toRadians(x))
+                        "cos" -> Math.cos(Math.toRadians(x))
+                        "tan" -> Math.tan(Math.toRadians(x))
+                        else -> throw RuntimeException("Unknown function: $func")
+                    }
                 } else {
                     throw RuntimeException("Unexpected: " + ch.toChar())
                 }
