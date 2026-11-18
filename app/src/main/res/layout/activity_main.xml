@@ -4,17 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#F5F5F5">
+    android:background="?android:attr/colorBackground">
 
-    <TextView
-        android:id="@+id/tvExpression"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="end|bottom"
-        android:padding="16dp"
-        android:textSize="32sp"
-        android:textColor="#555555" />
+        android:orientation="horizontal"
+        android:gravity="bottom|center_vertical">
+
+        <Button
+            android:id="@+id/btnMic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Microfono"
+            android:textSize="20sp"
+            android:backgroundTint="#2196F3"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/tvExpression"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:padding="16dp"
+            android:textSize="32sp"
+            android:textColor="?android:attr/textColorSecondary" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvResult"
@@ -24,7 +41,7 @@
         android:padding="16dp"
         android:textSize="48sp"
         android:textStyle="bold"
-        android:textColor="#000000"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="16dp"/>
 
     <GridLayout
@@ -41,7 +58,7 @@
         <Space android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:layout_margin="4dp"/>
 
         <!-- Fila 1 -->
-        <Button android:id="@+id/btnC" android:text="C" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp" android:backgroundTint="#FF5252"/>
+        <Button android:id="@+id/btnC" android:text="C" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp" android:backgroundTint="#FF5252" android:textColor="#FFFFFF"/>
         <Button android:id="@+id/btnOpen" android:text="(" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp"/>
         <Button android:id="@+id/btnClose" android:text=")" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp"/>
         <Button android:id="@+id/btnDiv" android:text="/" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp"/>
@@ -67,8 +84,7 @@
         <!-- Fila 5 -->
         <Button android:id="@+id/btnDot" android:text="." android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp"/>
         <Button android:id="@+id/btn0" android:text="0" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp"/>
-        <Button android:id="@+id/btnDel" android:text="Del" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="20sp" android:layout_margin="4dp" android:backgroundTint="#FFB74D"/>
-        <Button android:id="@+id/btnEquals" android:text="=" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp" android:backgroundTint="#4CAF50"/>
+        <Button android:id="@+id/btnDel" android:text="Del" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="20sp" android:layout_margin="4dp" android:backgroundTint="#FFB74D" android:textColor="#000000"/>
+        <Button android:id="@+id/btnEquals" android:text="=" android:layout_width="0dp" android:layout_height="0dp" android:layout_columnWeight="1" android:layout_rowWeight="1" android:textSize="24sp" android:layout_margin="4dp" android:backgroundTint="#4CAF50" android:textColor="#FFFFFF"/>
     </GridLayout>
-
 </LinearLayout>
