@@ -9,7 +9,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.proyecto_android_studio_isw28.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +24,7 @@ class MainActivity : AppCompatActivity() {
             if (spokenText.isNotEmpty()) {
                 val mathExpression = translateVoiceToMath(spokenText)
                 tvExpression.text = mathExpression
-                calculateResult() // Calcula automáticamente al terminar de hablar
+                calculateResult()
             }
         }
     }
@@ -59,7 +58,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Funciones de limpieza
         findViewById<Button>(R.id.btnC).setOnClickListener {
             tvExpression.text = ""
             tvResult.text = ""
@@ -76,12 +74,11 @@ class MainActivity : AppCompatActivity() {
             calculateResult()
         }
 
-        // 2. Acción al presionar el botón del micrófono
         findViewById<Button>(R.id.btnMic).setOnClickListener {
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-MX")
-                putExtra(RecognizerIntent.EXTRA_PROMPT, "Dicta tu operación (ej. seno de 45 más 2)")
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Dicta tu operación (ej. seno de 45 y todo eso por 2)")
             }
             try {
                 voiceResultLauncher.launch(intent)
@@ -98,8 +95,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun calculateResult() {
         try {
-            val expression = tvExpression.text.toString()
+            var expression = tvExpression.text.toString()
             if (expression.isEmpty()) return
+
+            expression = expression.replace(")(", ")*(")
+            expression = expression.replace(Regex("(\\d)\\("), "$1*(")
+            expression = expression.replace(Regex("\\)(\\d)"), ")*$1")
 
             val result = evaluate(expression)
 
@@ -116,31 +117,58 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun translateVoiceToMath(spokenText: String): String {
-        var mathExpression = spokenText.lowercase()
+        var text = spokenText.lowercase()
 
-        mathExpression = mathExpression
-            .replace("seno de", "sen") // "seno de 45" = "sen 45"
-            .replace("seno", "sen")
-            .replace("coseno de", "cos")
-            .replace("coseno", "cos")
-            .replace("tangente de", "tan")
-            .replace("tangente", "tan")
-            .replace("más", "+")
-            .replace("mas", "+")
-            .replace("menos", "-")
-            .replace("por", "*")
-            .replace("x", "*")
-            .replace("multiplicado por", "*")
-            .replace("entre", "/")
-            .replace("dividido entre", "/")
-            .replace("punto", ".")
-            .replace("coma", ".")
-            .replace("abrir paréntesis", "(")
-            .replace("cerrar paréntesis", ")")
+        val numbersMap = mapOf(
+            "cero" to "0", "uno" to "1", "dos" to "2", "tres" to "3",
+            "cuatro" to "4", "cinco" to "5", "seis" to "6", "siete" to "7",
+            "ocho" to "8", "nueve" to "9", "diez" to "10"
+        )
+        for ((word, digit) in numbersMap) {
+            text = text.replace(word, digit)
+        }
 
-        return mathExpression.replace(" ", "")
+        text = text.replace("seno de", "sen")
+        text = text.replace("seno", "sen")
+        text = text.replace("coseno de", "cos")
+        text = text.replace("coseno", "cos")
+        text = text.replace("cosen", "cos")
+        text = text.replace("tangente de", "tan")
+        text = text.replace("tangente", "tan")
+
+        text = text.replace("más", "+")
+        text = text.replace("mas", "+")
+        text = text.replace("menos", "-")
+
+        text = text.replace("multiplicado por", "*")
+        text = text.replace("multiplicado", "*")
+        text = text.replace("por", "*")
+        text = text.replace("x", "*")
+
+        text = text.replace("dividido entre", "/")
+        text = text.replace("entre", "/")
+
+        text = text.replace("punto", ".")
+        text = text.replace("coma", ".")
+
+        text = text.replace("y todo eso", "#")
+        text = text.replace("todo eso", "#")
+        text = text.replace("y eso", "#")
+        text = text.replace("eso", "#")
+
+        val groupCount = text.count { it == '#' }
+        text = text.replace("#", ")")
+
+        val openParens = "(".repeat(groupCount)
+        text = openParens + text
+
+
+        text = text.replace(" ", "")
+        text = text.replace("**", "*")
+        text = text.replace("//", "/")
+
+        return text
     }
-
 
     private fun evaluate(str: String): Double {
         return object : Any() {
